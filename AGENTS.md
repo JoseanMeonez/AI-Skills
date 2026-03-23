@@ -22,6 +22,12 @@ If tooling is added later, document:
 - Keep skill and agent units self-contained, with local resources in each unit directory.
 - Separate canonical shared guidance from tool-specific entry-point files.
 
+## Skill locations
+
+- Copilot-compatible project skills: `.github/skills/<skill-name>/SKILL.md`
+- Claude-compatible project skills: `.claude/skills/<skill-name>/SKILL.md`
+- Keep equivalent skills mirrored across both locations when cross-tool parity is required.
+
 ## Conventions
 
 - Do not invent commands, workflows, IDs, or validation steps; use repository-backed facts only.
