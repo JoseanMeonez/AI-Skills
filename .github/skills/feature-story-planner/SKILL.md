@@ -1,6 +1,6 @@
 ---
 name: feature-story-planner
-description: Build a feature plan split into technical stories with Gherkin scenarios in Markdown. Collect required parameters, ask for missing ones, and after explicit approval create one GitHub issue per story and add each issue to a classic project board using GitHub CLI.
+description: Build a feature plan split into technical stories with Gherkin scenarios in Markdown. Collect required parameters, ask for missing ones, and after explicit approval create one GitHub issue per story, apply native parent/blocker relations, and add each issue to a classic project board using GitHub CLI.
 ---
 
 # Feature Story Planner Skill
@@ -21,6 +21,9 @@ Collect all required parameters before writing the final story set:
 8. `labels` - issue labels to apply (`none` if not used).
 9. `assignee` - GitHub login (`none` if not used).
 10. `milestone` - milestone number (`none` if not used).
+11. `parent_relation_mode` - how parent linkage is modeled (`epic-parent` or `story-parent`).
+12. `dependency_mode` - dependency semantics to apply (`blocks` / `blocked_by`).
+13. `relation_overrides` - optional per-story relation overrides (`none` if not used).
 
 ## Missing-parameter behavior
 
@@ -29,6 +32,7 @@ If any required parameter is missing:
 - Ask for exactly one missing parameter at a time.
 - Do not generate final stories or execute GitHub CLI commands until all required parameters are present.
 - If `project_column_id` is unknown, ask the user to provide it (for classic boards this is required for card creation).
+- If relation parameters are ambiguous, ask for explicit direction before proceeding.
 
 ## Story output format (Markdown first)
 
@@ -39,6 +43,7 @@ After all parameters are known, output a Markdown plan with multiple stories. Ma
 **Epic:** <epic id> - <epic title>
 **Category:** <target category>
 **Files:** `<file1>`, `<file2>`
+**Relations:** Parent: <epic|story-key|none>; Blocks: <story keys|none>; Blocked by: <story keys|none>
 
 ---
 
@@ -71,6 +76,7 @@ Rules:
 - Include at least one Gherkin block per task.
 - Keep each story aligned with `story_granularity`.
 - Keep the output in Markdown.
+- Include explicit relation metadata for every story.
 
 ## Approval gate (mandatory)
 
@@ -78,11 +84,11 @@ After presenting the stories, stop and ask for explicit approval.
 
 Use a direct question such as:
 
-`Do you approve creating these stories as GitHub issues and adding them to the classic project column now?`
+`Do you approve creating these stories as GitHub issues, applying parent/blocker relations, and adding them to the classic project column now?`
 
-Do not create issues or project cards until explicit approval is received.
+Do not create issues, relations, or project cards until explicit approval is received.
 
-## Post-approval execution flow (GitHub CLI)
+## Post-approval execution flow (GitHub CLI + GitHub GraphQL API)
 
 After explicit approval:
 
@@ -98,15 +104,41 @@ gh issue create \
   [--milestone "<milestone_number>"]
 ```
 
-2. Capture the issue URL from command output and extract the issue number.
+2. Capture issue URL and number; resolve both numeric ID and node ID:
 
-3. Resolve the numeric issue `id` needed by classic project cards:
+```bash
+gh api repos/OWNER/REPO/issues/<issue_number> --jq '{id: .id, node_id: .node_id}'
+```
+
+3. Apply parent/sub-issue relations natively (when configured):
+
+```bash
+gh api graphql -f query='
+mutation($issueId: ID!, $subIssueId: ID!) {
+  addSubIssue(input: {issueId: $issueId, subIssueId: $subIssueId}) {
+    issue { id number }
+    subIssue { id number }
+  }
+}' -F issueId=<PARENT_NODE_ID> -F subIssueId=<CHILD_NODE_ID>
+```
+
+4. Apply blocker relations natively (when configured):
+
+```bash
+gh api graphql -f query='
+mutation($issueId: ID!, $blockingIssueId: ID!) {
+  addBlockedBy(input: {issueId: $issueId, blockingIssueId: $blockingIssueId}) {
+    issue { id number }
+    blockingIssue { id number }
+  }
+}' -F issueId=<BLOCKED_NODE_ID> -F blockingIssueId=<BLOCKER_NODE_ID>
+```
+
+5. Resolve numeric issue `id` and add card to classic project column:
 
 ```bash
 gh api repos/OWNER/REPO/issues/<issue_number> --jq '.id'
 ```
-
-4. Add the issue to the classic project column:
 
 ```bash
 gh api \
@@ -117,13 +149,15 @@ gh api \
   -f content_type=Issue
 ```
 
-5. Report:
+6. Report:
    - created issue list,
+   - applied parent/sub-issue and blocker relations,
    - confirmation each card was added to the column,
    - any failures and what input is needed to retry.
 
 ## Reliability constraints
 
 - Never fabricate IDs, URLs, or command results.
-- If any CLI command fails, show the exact error and request the missing/fixed parameter.
+- Validate all relation targets exist before linking.
+- If any CLI/API command fails, show the exact error and request the missing/fixed parameter.
 - If a matching story issue already exists, ask whether to skip, update, or create a new issue.
