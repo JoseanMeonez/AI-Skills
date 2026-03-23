@@ -1,6 +1,6 @@
 ---
 name: feature-story-planner
-description: Build a feature plan split into technical stories with Gherkin scenarios in Markdown. Collect required parameters, ask for missing ones, and after explicit approval create one GitHub issue per story, apply native parent/blocker relations, and add each issue to a classic project board using GitHub CLI.
+description: Build a feature plan split into technical stories with Gherkin scenarios in Markdown. Collect required parameters, ask for missing ones, and after explicit approval create one GitHub issue per story, apply native parent/blocker relations, align labels using existing repository labels (or user-approved new labels), and add each issue to a classic project board using GitHub CLI.
 ---
 
 # Feature Story Planner Skill
@@ -18,7 +18,7 @@ Collect all required parameters before writing the final story set:
 5. `target_category` - category/layer (`Frontend`, `Backend`, `Platform`, etc.).
 6. `story_granularity` - expected story size (`small`, `medium`, `large`).
 7. `project_column_id` - classic project column ID where cards must be added.
-8. `labels` - issue labels to apply (`none` if not used).
+8. `labels` - preferred label hints (`none` if no preference).
 9. `assignee` - GitHub login (`none` if not used).
 10. `milestone` - milestone number (`none` if not used).
 11. `parent_relation_mode` - how parent linkage is modeled (`epic-parent` or `story-parent`).
@@ -44,6 +44,7 @@ After all parameters are known, output a Markdown plan with multiple stories. Ma
 **Category:** <target category>
 **Files:** `<file1>`, `<file2>`
 **Relations:** Parent: <epic|story-key|none>; Blocks: <story keys|none>; Blocked by: <story keys|none>
+**Label intent:** <semantic categories for this story>
 
 ---
 
@@ -77,6 +78,7 @@ Rules:
 - Keep each story aligned with `story_granularity`.
 - Keep the output in Markdown.
 - Include explicit relation metadata for every story.
+- Include label intent per story to drive semantic label alignment.
 
 ## Approval gate (mandatory)
 
@@ -84,33 +86,54 @@ After presenting the stories, stop and ask for explicit approval.
 
 Use a direct question such as:
 
-`Do you approve creating these stories as GitHub issues, applying parent/blocker relations, and adding them to the classic project column now?`
+`Do you approve creating these stories as GitHub issues, applying parent/blocker relations, aligning labels, and adding them to the classic project column now?`
 
-Do not create issues, relations, or project cards until explicit approval is received.
+Do not create issues, relations, labels, or project cards until explicit approval is received.
 
 ## Post-approval execution flow (GitHub CLI + GitHub GraphQL API)
 
 After explicit approval:
 
-1. Create one issue per story:
+1. Query existing repository labels:
+
+```bash
+gh label list --repo OWNER/REPO --limit 200
+```
+
+2. For each story, semantically map `label intent` to existing labels.
+
+- If aligned existing labels are found, use them.
+- If no aligned labels are found for a story, propose exactly **3** label suggestions.
+- Ask user approval before creating any new label.
+- Accept either:
+  - one of the 3 suggested labels, or
+  - a custom label name provided by the user.
+
+3. Create approved missing labels only:
+
+```bash
+gh label create "<label_name>" --repo OWNER/REPO [--color "<hex_without_hash>"] [--description "<text>"]
+```
+
+4. Create one issue per story with the resolved label set:
 
 ```bash
 gh issue create \
   --repo OWNER/REPO \
   --title "Story <epic>.<n> — <Story title>" \
   --body-file <story_markdown_file> \
-  [--label "<label1>" --label "<label2>"] \
+  [--label "<resolved_label_1>" --label "<resolved_label_2>"] \
   [--assignee "<assignee>"] \
   [--milestone "<milestone_number>"]
 ```
 
-2. Capture issue URL and number; resolve both numeric ID and node ID:
+5. Capture issue URL and number; resolve both numeric ID and node ID:
 
 ```bash
 gh api repos/OWNER/REPO/issues/<issue_number> --jq '{id: .id, node_id: .node_id}'
 ```
 
-3. Apply parent/sub-issue relations natively (when configured):
+6. Apply parent/sub-issue relations natively (when configured):
 
 ```bash
 gh api graphql -f query='
@@ -122,7 +145,7 @@ mutation($issueId: ID!, $subIssueId: ID!) {
 }' -F issueId=<PARENT_NODE_ID> -F subIssueId=<CHILD_NODE_ID>
 ```
 
-4. Apply blocker relations natively (when configured):
+7. Apply blocker relations natively (when configured):
 
 ```bash
 gh api graphql -f query='
@@ -134,7 +157,7 @@ mutation($issueId: ID!, $blockingIssueId: ID!) {
 }' -F issueId=<BLOCKED_NODE_ID> -F blockingIssueId=<BLOCKER_NODE_ID>
 ```
 
-5. Resolve numeric issue `id` and add card to classic project column:
+8. Resolve numeric issue `id` and add card to classic project column:
 
 ```bash
 gh api repos/OWNER/REPO/issues/<issue_number> --jq '.id'
@@ -149,8 +172,9 @@ gh api \
   -f content_type=Issue
 ```
 
-6. Report:
+9. Report:
    - created issue list,
+   - final labels assigned per issue (existing vs newly created),
    - applied parent/sub-issue and blocker relations,
    - confirmation each card was added to the column,
    - any failures and what input is needed to retry.
@@ -159,5 +183,7 @@ gh api \
 
 - Never fabricate IDs, URLs, or command results.
 - Validate all relation targets exist before linking.
+- Do not create labels without explicit user approval.
+- Avoid duplicate label creation when an equivalent existing label already matches.
 - If any CLI/API command fails, show the exact error and request the missing/fixed parameter.
 - If a matching story issue already exists, ask whether to skip, update, or create a new issue.
