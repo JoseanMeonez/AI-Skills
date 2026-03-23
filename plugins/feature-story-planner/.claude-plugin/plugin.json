@@ -1,0 +1,7 @@
+{
+  "name": "feature-story-planner",
+  "description": "Plan features with Gherkin-driven technical stories, then create related GitHub issues, labels, and project cards.",
+  "author": {
+    "name": "AI Skills Maintainers"
+  }
+}

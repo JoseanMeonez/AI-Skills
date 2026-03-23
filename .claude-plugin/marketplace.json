@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ai-skills",
+  "description": "Custom marketplace of Claude plugins focused on practical feature planning and delivery workflows.",
+  "owner": {
+    "name": "AI Skills Maintainers"
+  },
+  "plugins": [
+    {
+      "name": "feature-story-planner",
+      "description": "Plan features with Gherkin-driven technical stories, then create and relate GitHub issues with labels and project cards.",
+      "category": "development",
+      "source": "./plugins/feature-story-planner"
+    }
+  ]
+}

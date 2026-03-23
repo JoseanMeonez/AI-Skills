@@ -1,6 +1,6 @@
 # Repository Instructions (Canonical)
 
-This repository stores custom skills and custom agent definitions.
+This repository is a custom plugin marketplace (Claude format primary) that packages reusable AI workflows.
 
 ## Scope
 
@@ -18,15 +18,16 @@ If tooling is added later, document:
 
 ## Architecture
 
-- Repository is configuration-first: instructions, skills, and agent profiles.
-- Keep skill and agent units self-contained, with local resources in each unit directory.
-- Separate canonical shared guidance from tool-specific entry-point files.
+- Repository is configuration-first: marketplace manifest, plugin packages, and instruction wrappers.
+- Marketplace registry lives at `.claude-plugin/marketplace.json`.
+- Installable plugins live under `plugins/<plugin-name>/`.
+- Each plugin should be self-contained (`.claude-plugin/plugin.json`, `skills/`, optional `commands/`, plugin `README.md`).
+- Keep canonical shared guidance separate from tool-specific entry-point wrapper files.
 
 ## Skill locations
 
-- Copilot-compatible project skills: `.github/skills/<skill-name>/SKILL.md`
-- Claude-compatible project skills: `.claude/skills/<skill-name>/SKILL.md`
-- Keep equivalent skills mirrored across both locations when cross-tool parity is required.
+- Marketplace plugin skills: `plugins/<plugin-name>/skills/<skill-name>/SKILL.md`
+- Legacy direct skill paths (`.github/skills` / `.claude/skills`) should be avoided for new additions in favor of plugin packaging.
 
 ## Conventions
 
