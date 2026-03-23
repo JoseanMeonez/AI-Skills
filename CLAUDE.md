@@ -1,4 +1,4 @@
-# Copilot Instructions Wrapper
+# Claude Instructions Wrapper
 
 This file is a wrapper over the canonical repository instructions.
 
