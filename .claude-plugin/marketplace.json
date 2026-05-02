@@ -11,6 +11,60 @@
       "description": "Plan features with Gherkin-driven technical stories, then create and relate GitHub issues with labels and project cards.",
       "category": "development",
       "source": "./plugins/feature-story-planner"
+    },
+    {
+      "name": "playwright",
+      "description": "Browser automation and end-to-end testing MCP server. Enables interaction with web pages, screenshots, and automated browser testing workflows.",
+      "category": "testing",
+      "source": "./plugins/playwright"
+    },
+    {
+      "name": "csharp-lsp",
+      "description": "C# language server for code intelligence.",
+      "category": "language-support",
+      "source": "./plugins/csharp-lsp"
+    },
+    {
+      "name": "frontend-design",
+      "description": "Frontend design skill for UI/UX implementation.",
+      "category": "design",
+      "source": "./plugins/frontend-design"
+    },
+    {
+      "name": "code-simplifier",
+      "description": "Agent that simplifies and refines code for clarity, consistency, and maintainability.",
+      "category": "refactoring",
+      "source": "./plugins/code-simplifier"
+    },
+    {
+      "name": "typescript-lsp",
+      "description": "TypeScript/JavaScript language server for enhanced code intelligence.",
+      "category": "language-support",
+      "source": "./plugins/typescript-lsp"
+    },
+    {
+      "name": "skill-creator",
+      "description": "Create new skills, improve existing skills, and measure skill performance.",
+      "category": "meta",
+      "source": "./plugins/skill-creator"
+    },
+    {
+      "name": "code-review",
+      "description": "Automated code review for pull requests using multiple specialized agents.",
+      "category": "quality",
+      "source": "./plugins/code-review"
+    },
+    {
+      "name": "superpowers",
+      "description": "Core skills library for Claude Code: TDD, debugging, collaboration patterns, and proven techniques.",
+      "category": "development",
+      "source": "./plugins/superpowers"
+    },
+    {
+      "name": "ui-ux-pro-max",
+      "description": "UI/UX design intelligence with multiple styles, palettes, and frameworks support.",
+      "category": "design",
+      "source": "./plugins/ui-ux-pro-max"
     }
   ]
 }

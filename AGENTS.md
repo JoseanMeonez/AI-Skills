@@ -1,11 +1,12 @@
 # Repository Instructions (Canonical)
 
-This repository is a custom plugin marketplace (Claude format primary) that packages reusable AI workflows.
+This repository is a custom plugin marketplace (Claude format primary) that packages reusable AI workflows and language intelligence.
 
 ## Scope
 
 - Keep this repository tool-agnostic across Copilot CLI, Claude Code, Gemini CLI, and similar assistants.
-- Prefer shared guidance here, and keep tool-specific files as thin wrappers.
+- Focus on practical delivery workflows (planning, testing, refactoring) and specialized design intelligence.
+- Support for multiple languages (TypeScript, C#, Python, etc.) through LSP plugins.
 
 ## Build, test, and lint
 
