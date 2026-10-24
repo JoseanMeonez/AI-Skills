@@ -28,7 +28,8 @@ If tooling is added later, document:
 ## Skill locations
 
 - Marketplace plugin skills: `plugins/<plugin-name>/skills/<skill-name>/SKILL.md`
-- Legacy direct skill paths (`.github/skills` / `.claude/skills`) should be avoided for new additions in favor of plugin packaging.
+- Only skills authored in this repository are vendored. Third-party skills are referenced in `SKILLS.md` and installed from their upstream source.
+- Legacy direct skill paths (`.github/skills` / `.claude/skills`) are not used; the plugin package is the only copy.
 
 ## Conventions
 
