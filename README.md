@@ -12,7 +12,7 @@ This marketplace only ships skills authored and maintained here:
 
 - **feature-story-planner**: Plan features with Gherkin-driven technical stories and automate GitHub/Notion delivery.
 
-Third-party packs I use (superpowers, Anthropic official, ui-ux-pro-max, Orca, ponytail) are **referenced by source, not copied**. See [SKILLS.md](SKILLS.md) for the skills and install locations.
+Third-party packs I use (superpowers, Anthropic official, ui-ux-pro-max, ponytail) are **referenced by source, not copied**. See [SKILLS.md](SKILLS.md) for the skills and install locations.
 
 ## Marketplace shape
 
