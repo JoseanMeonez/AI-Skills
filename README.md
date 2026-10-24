@@ -8,18 +8,11 @@ I noticed that when feature tasks are written with Gherkin scenarios, AI plannin
 
 ## Available Plugins
 
-Currently, this marketplace offers the following plugins:
+This marketplace only ships skills authored and maintained here:
 
 - **feature-story-planner**: Plan features with Gherkin-driven technical stories and automate GitHub/Notion delivery.
-- **playwright**: Browser automation and end-to-end testing tools.
-- **csharp-lsp**: C# language server for code intelligence.
-- **frontend-design**: Specialized skill for UI/UX implementation.
-- **code-simplifier**: Automated refactoring to improve code clarity and maintainability.
-- **typescript-lsp**: Enhanced intelligence for TypeScript and JavaScript.
-- **skill-creator**: Meta-skill to build, optimize, and benchmark other skills.
-- **code-review**: Automated multi-agent code review system.
-- **superpowers**: Core library for TDD, systematic debugging, and professional workflows.
-- **ui-ux-pro-max**: Advanced design intelligence with support for dozens of styles and frameworks.
+
+Third-party packs I use (superpowers, Anthropic official, ui-ux-pro-max, ponytail) are **referenced by source, not copied**. See [SKILLS.md](SKILLS.md) for the skills and install locations.
 
 ## Marketplace shape
 
